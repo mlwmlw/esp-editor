@@ -1,0 +1,79 @@
+<!DOCTYPE html> <html ng-app="xapp">
+<head>
+	<title>ESP-Editor</title>
+	<script type="text/javascript" src="assets/angular.min.js"></script>
+	<script type="text/javascript" src="assets/angular-sanitize.min.js"></script>
+	<script type="text/javascript" src="assets/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="assets/codemirror/lib/codemirror.css">
+	<link rel="stylesheet" type="text/css" href="assets/codemirror/theme/solarized.css"/>
+	<link rel="stylesheet" href="assets/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="assets/bootstrap/dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="assets/font-awesome/css/font-awesome.min.css">
+
+	<script type="text/javascript" src="assets/codemirror/lib/codemirror.js"></script>
+	<script type="text/javascript" src="assets/codemirror/addon/mode/loadmode.js"></script>
+	<script type="text/javascript" src="assets/angular-ui-codemirror/ui-codemirror.js"></script>
+	<script src="assets/angular-highlightjs.min.js"></script>
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css" />
+	<!--link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css" /-->
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/solarized_dark.min.css" />
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/languages/lua.min.js"></script>
+	<script src="assets/main.js"></script>
+	<style>
+		.CodeMirror {
+			height: auto;
+		}
+		pre {
+			background: #002b36;
+			border: 0px;
+			padding: 0px;
+			margin: 10px 0px;
+			height: 500px;
+			display: flex;
+			cursor: text;
+		}
+		.hljs {
+			font-size:15px;
+			font-family: monaco;
+			align-self: flex-end;
+			width:100%;
+			max-height: 100%;
+			overflow: auto;
+			flex: 1 1 auto;
+		}
+		input {
+			background: none;
+			color: #839496;
+			border: 0px;
+			margin: -38px 0 0 2em;
+			font-size: 15px;
+			font-family: monaco;
+			display: block;
+			outline: none;
+			width:92%;
+		}
+	</style>
+</head>
+<body ng-controller="ctrl">
+<!--nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="#">ESP-Editor</a>
+	</div>
+</nav-->
+<div class="container" style="padding-top:10px;">
+	Baud Rate: <select class="form-control" ng-model="baudrate" ng-options="rate for rate in baudrates"></select>
+	<br />
+	Ports: <select class="form-control" ng-change="selectPort(port.comName)" ng-model="port" ng-options="port.comName + ' - ' + port.manufacturer for port in ports"></select>
+	<div class="row" ng-repeat="clip in clips track by $index">
+		<div class="col-md-1">
+		</div>
+	</div>
+	<div class="console">
+		<div ng-click="focus()" language="lua" hljs source="output"></div>
+		<input id="cmd" type="text" ng-keydown="input($event)" ng-model="cmd" />
+	</div>
+</div>
+</body>
+</html>
+

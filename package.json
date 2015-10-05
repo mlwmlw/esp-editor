@@ -1,0 +1,31 @@
+{
+  "name": "esp-editor",
+  "version": "0.1.0",
+  "description": "ESP8266 editor for NodeMCU & Smart.js",
+  "main": "main.js",
+  "dependencies": {
+    "serialport": "^1.7.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+		"start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mlwmlw/esp-editor.git"
+  },
+  "keywords": [
+    "esp8266",
+    "nodemcu",
+    "smart.js",
+    "ide",
+    "editor"
+  ],
+  "author": "mlwmlw <admin@mlwmlw.org> (http://mlwmlw.org/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mlwmlw/esp-editor/issues"
+  },
+  "homepage": "https://github.com/mlwmlw/esp-editor#readme"
+}
