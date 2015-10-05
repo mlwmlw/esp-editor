@@ -3,7 +3,7 @@ ESP8266 editor for NodeMCU and Smart.js
 
 Based on electron.
 
-# Fetures ( In development )
+# Features ( In development )
 
 * Command history
 * Cross-platform
