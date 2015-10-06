@@ -13,6 +13,13 @@
 	<script type="text/javascript" src="assets/codemirror/lib/codemirror.js"></script>
 	<script type="text/javascript" src="assets/codemirror/addon/mode/loadmode.js"></script>
 	<script type="text/javascript" src="assets/angular-ui-codemirror/ui-codemirror.js"></script>
+
+	<script type="text/javascript" src="assets/angular-tree-control/angular-tree-control.js"></script>
+	<!-- link for CSS when using the tree as a Dom element -->
+	<link rel="stylesheet" type="text/css" href="assets/angular-tree-control/css/tree-control.css">
+	<!-- link for CSS when using the tree as an attribute -->
+	<link rel="stylesheet" type="text/css" href="assets/angular-tree-control/css/tree-control-attribute.css">
+
 	<script src="assets/angular-highlightjs.min.js"></script>
 	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css" />
 	<!--link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css" /-->
@@ -20,7 +27,11 @@
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/languages/lua.min.js"></script>
 	<script src="assets/main.js"></script>
+
 	<style>
+		.container {
+			width:100%;
+		}
 		.CodeMirror {
 			height: auto;
 		}
@@ -53,6 +64,12 @@
 			outline: none;
 			width:92%;
 		}
+		.sidebar {
+			padding: 10px 10px 0px 0px;
+		    background: #f4f4f4;
+		    min-height: 100vh;
+		    margin-top: -10px;
+		}
 	</style>
 </head>
 <body ng-controller="ctrl">
@@ -62,16 +79,28 @@
 	</div>
 </nav-->
 <div class="container" style="padding-top:10px;">
-	Baud Rate: <select class="form-control" ng-model="baudrate" ng-options="rate for rate in baudrates"></select>
-	<br />
-	Ports: <select class="form-control" ng-change="selectPort(port.comName)" ng-model="port" ng-options="port.comName + ' - ' + port.manufacturer for port in ports"></select>
-	<div class="row" ng-repeat="clip in clips track by $index">
-		<div class="col-md-1">
-		</div>
+	<div class="row">
+	<div class="col-xs-3 sidebar">
+		<treecontrol class="tree-classic"
+		   tree-model="files"
+		   options="treeOptions"
+		   on-selection="showSelected(node)"
+		   selected-node="node1">
+		   {{node.name}}
+		</treecontrol>
 	</div>
-	<div class="console">
-		<div ng-click="focus()" language="lua" hljs source="output"></div>
-		<input id="cmd" type="text" ng-keydown="input($event)" ng-model="cmd" />
+	<div class="col-xs-9">
+		Baud Rate: <select class="form-control" ng-model="baudrate" ng-options="rate for rate in baudrates"></select>
+		<br />
+		Ports: <select class="form-control" ng-change="selectPort(port.comName)" ng-model="port" ng-options="port.comName + ' - ' + port.manufacturer for port in ports"></select>
+		<div class="row" ng-repeat="clip in clips track by $index">
+			<div class="col-md-1">
+			</div>
+		</div>
+		<div class="console">
+			<div ng-click="focus()" language="lua" hljs source="output"></div>
+			<input id="cmd" type="text" ng-keydown="input($event)" ng-model="cmd" />
+		</div>
 	</div>
 </div>
 </body>
