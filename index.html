@@ -35,12 +35,12 @@
 		.CodeMirror {
 			height: auto;
 		}
-		pre {
+		.console pre {
 			background: #002b36;
 			border: 0px;
 			padding: 0px;
 			margin: 10px 0px;
-			height: 500px;
+			height: 20em;
 			display: flex;
 			cursor: text;
 		}
@@ -70,6 +70,9 @@
 		    min-height: 100vh;
 		    margin-top: -10px;
 		}
+		.CodeMirror {
+			height: 30em;
+		}
 	</style>
 </head>
 <body ng-controller="ctrl">
@@ -93,6 +96,8 @@
 		Baud Rate: <select class="form-control" ng-model="baudrate" ng-options="rate for rate in baudrates"></select>
 		<br />
 		Ports: <select class="form-control" ng-change="selectPort(port.comName)" ng-model="port" ng-options="port.comName + ' - ' + port.manufacturer for port in ports"></select>
+		<div  ui-codemirror="editor.option" ng-model="editor.content"></div>
+
 		<div class="row" ng-repeat="clip in clips track by $index">
 			<div class="col-md-1">
 			</div>

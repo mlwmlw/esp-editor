@@ -10,7 +10,8 @@ var mainWindow = null;
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
-    app.quit();
+    
+  app.quit();
 });
 
 // This method will be called when Electron has finished
@@ -18,13 +19,13 @@ app.on('window-all-closed', function() {
 app.on('ready', function() {
   // Create the browser window.
   mainWindow = new BrowserWindow({width: 1000, height: 800});
-
+  
   // and load the index.html of the app.
   mainWindow.loadUrl('file://' + __dirname + '/index.html');
   menu.setMenu(app, mainWindow);
   // Open the DevTools.
   mainWindow.openDevTools();
-	
+
   mainWindow.on('closed', function() {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time

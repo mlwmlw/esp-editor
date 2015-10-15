@@ -1,14 +1,35 @@
-var serialPort = require("serialport");
+var serial = require('./serial-proxy');
 CodeMirror.modeURL = "assets/codemirror/mode/%N/%N.js";
 var clips = [];
+window.addEventListener('beforeunload', function() {
+	serial.kill();
+});
 angular.module('xapp', ['ngSanitize', 'hljs', 'ui.codemirror', 'treeControl']).controller('ctrl', function($scope, $interval, $timeout) {
-	var hljs = document.querySelector('.hljs')
-	var input = document.querySelector('#cmd')
+	var hljs = document.querySelector('.hljs');
+	var input = document.querySelector('#cmd');
+	var editor;
+	CodeMirror.commands.save = function(insance) { 
+		 $scope.serial.saveFile($scope.file, editor.getValue());
+	}
+	$scope.editor = {content: '', option: {
+			mode: 'lua',
+			theme: 'solarized dark',
+			lineNumbers: true,
+			viewportMargin: Infinity,
+			onLoad: function(_cm) {
+				try {
+					CodeMirror.autoLoadMode(_cm, this.mode);
+				} catch(e) {}
+				editor = _cm;
+			}
+		}
+	};
 	$scope.baudrates = [
 		9600, 19200, 38400, 57600, 115200, 230400, 250000 
 	];
 	$scope.baudrate = 9600;
-	serialPort.list(function (err, ports) {
+	serial.start();
+	serial.list(function (err, ports) {
 		$scope.$apply(function() {
 			$scope.ports = ports;
 			$scope.port = ports[ports.length - 1];
@@ -36,8 +57,13 @@ angular.module('xapp', ['ngSanitize', 'hljs', 'ui.codemirror', 'treeControl']).c
 	    }
 	}
 	$scope.files = [];
+	$scope.file = 'untitled';
 	$scope.showSelected = function(node) {
-		$scope.serial.readFile(node.path, node.size)
+		$scope.file = node.path;
+		$scope.serial.readFile(node.path, node.size, function(content) {
+			editor.setValue(content);
+
+		})
 	}
 	$scope.input = function(event) {
 		if(!$scope.serial)
@@ -76,12 +102,18 @@ angular.module('xapp', ['ngSanitize', 'hljs', 'ui.codemirror', 'treeControl']).c
 			});
 		});
 		serial.onInit(function() {
+			$scope.$apply(function() {
+				$scope.output = ">\n";
+			});
+
 			serial.getFiles(function(files) {
 				$scope.$apply(function() {
+					console.log(files.length);
 					$scope.files = files.map(function(row) {
 						var split = row[0].split('/');
 						var name = split.shift();
 						var children = split.shift();
+						console.log(children, name)
 						if(children)
 							return {name: name, children: [{
 								name: children,
@@ -90,30 +122,33 @@ angular.module('xapp', ['ngSanitize', 'hljs', 'ui.codemirror', 'treeControl']).c
 							}]}
 						else
 							return {name: name, path: name, size: row[1]}
-					});
+					}).reduce(function(files, file) {
+						for(var i in files) {
+							if(files[i].children && file.name == files[i].name) {
+								files[i].children = files[i].children.concat(file.children);
+								return files;
+							}
+						}
+						files.push(file);
+						return files;
+					}, []);
+					console.log($scope.files);
 				});
 			});
-			$scope.$apply(function() {
-				$scope.output = ">\n";
-			});
+			
 		});
 	};
 	var Serial = function(port, baudrate) {
 		var reader = function() {}, init = function() {};
-		var serial = new serialPort.SerialPort(port, {
-			baudrate: baudrate
-		});
 		var buffer = "";
-		serial.open(function (error) {
-			if ( error ) {
-				return console.log('failed to open: '+error);
-			}
+
+		serial.open(port, {baudrate: baudrate}, function(err, data) {
 			init();
-			serial.on('data', function(data) {
-				buffer += data;
-				reader(data);
-			});
 		});
+		serial.on('data', function(err, data) {
+			buffer += data;
+			reader(data);
+		})
 		function execute(cmd, cb) {
 			var _r = reader;
 			var lastRead;
@@ -127,12 +162,14 @@ angular.module('xapp', ['ngSanitize', 'hljs', 'ui.codemirror', 'treeControl']).c
 				if(now - lastRead < 500)
 					return;
 				reader = _r;
+
 				clearInterval(timer);
-				console.log(str)
+
 				var arr = str.toString().split("\n");
 				cb(arr.slice(cmd.split("\n").length).slice(0, -1).join("\n"))
 			}, 100);
 			var cmds = cmd.split("\n");
+
 			for(var i in cmds) {
 				setTimeout((function(cmd) {
 					return function() {
@@ -142,11 +179,23 @@ angular.module('xapp', ['ngSanitize', 'hljs', 'ui.codemirror', 'treeControl']).c
 			}
 		}
 		return {
-			readFile: function(file, size) {
+			readFile: function(file, size, cb) {
     			execute(`file.open("${file}", "r")
     				data = file.read(${size})
     				file.close()
     				print(data)`, function(res) {
+					cb(res);
+				})
+			},
+			saveFile: function(path, content, cb) {
+				var content = content.split("\n").map(function(line) {
+					line = line.replace("\"", "\\\"");
+					return `file.write("${line}");`
+				}).join("\n");
+				console.log(content);
+				execute(`file.open("${path}", "w+");
+					${content}
+					file.close();`, function(res) {
 					console.log(res);
 				})
 			},
