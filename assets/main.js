@@ -152,12 +152,9 @@ angular.module('xapp', ['ngSanitize', 'hljs', 'ui.codemirror', 'treeControl']).c
 		function execute(cmd, cb) {
 			var _r = reader;
 			var lastRead;
-			var str = "";
-			reader = function(data) {
-				lastRead = new Date;
-				str += data;
-			}
-			var timer = setInterval(function() {
+			var res = "";
+			
+			/*var timer = setInterval(function() {
 				var now = new Date;
 				if(now - lastRead < 500)
 					return;
@@ -167,32 +164,60 @@ angular.module('xapp', ['ngSanitize', 'hljs', 'ui.codemirror', 'treeControl']).c
 
 				var arr = str.toString().split("\n");
 				cb(arr.slice(cmd.split("\n").length).slice(0, -1).join("\n"))
-			}, 100);
+			}, 100);*/
 			var cmds = cmd.split("\n");
 
-			for(var i in cmds) {
+			setTimeout(function executor() {
+				var c = cmds.shift();
+
+				var str = "";
+				new Promise(function(resolve) {
+					reader = function(data) {
+						lastRead = new Date;
+						str += data;
+						
+						if(!/^>+ /.test(str.split("\n").pop())) {
+							return;
+						}
+						resolve(str);
+					}
+					serial.write(c + "\n");
+				}).then(function(str) {
+					res += str;
+					if(cmds.length > 0)
+						return executor();
+					var arr = res.toString().split("\n");
+					var r = arr.slice(cmd.split("\n").length).slice(0, -1).join("\n")
+					cb(r);
+				});
+			}, 500);
+			/*for(var i in cmds) {
 				setTimeout((function(cmd) {
 					return function() {
 						serial.write(cmd + "\n");
 					}
-				})(cmds[i]), 150 * i);
-			}
+				})(cmds[i]), 100 * i);
+			}*/
 		}
 		return {
 			readFile: function(file, size, cb) {
     			execute(`file.open("${file}", "r")
-    				data = file.read(${size})
-    				file.close()
+    				data = ""
+    				while true do
+  					  local line = file.readline()
+  					  if line == nil then break end
+  					  data = data .. line
+					end
+					file.close()
     				print(data)`, function(res) {
 					cb(res);
 				})
 			},
 			saveFile: function(path, content, cb) {
 				var content = content.split("\n").map(function(line) {
-					line = line.replace("\"", "\\\"");
-					return `file.write("${line}");`
+					line = line.replace(new RegExp("\"", 'g'), "\\\"");
+					return `file.writeline("${line}");`
 				}).join("\n");
-				console.log(content);
 				execute(`file.open("${path}", "w+");
 					${content}
 					file.close();`, function(res) {
