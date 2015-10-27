@@ -1,6 +1,7 @@
 var Menu = require('menu');
 var MenuItem = require('menu-item');
-
+var serialPort = require("serialport");
+var ports = 
 module.exports = {
     setMenu: function (app, mainWindow) {
         if (process.platform === 'darwin') {
@@ -89,6 +90,43 @@ module.exports = {
                     ]
                 },
                 {
+                    label: 'Ports',
+                    submenu: (function() {
+                        var _ports = [];
+                        serialPort.list(function(err, ports) {
+                            Array.prototype.splice.apply(_ports, [0, 0].concat(ports.map(function(port, i) {
+                                return {
+                                    checked: i == ports.length - 1,
+                                    label: port.comName,
+                                    selector: port.comName,
+                                    type: 'radio',
+                                    click: function(item) {
+                                        console.log(arguments)
+                                    }
+                                };
+                            })));
+                            console.log(template);
+                            menu = Menu.buildFromTemplate(template);
+                            Menu.setApplicationMenu(menu);
+                        });
+                        return _ports;
+                    })()
+                },
+                {
+                    label: 'Baud Rate',
+                    submenu: [9600, 19200, 38400, 57600, 115200, 230400, 250000].map(function(baud) {
+                        return {
+                            checked: baud == "9600",
+                            label: baud + "",
+                            selector: baud + "",
+                            type: 'radio',
+                            click: function(item) {
+                                console.log(arguments)
+                            }
+                        };
+                    })
+                },
+                {
                     label: 'Window',
                     submenu: [
                         {
@@ -116,15 +154,14 @@ module.exports = {
                         {
                             label: 'GitHub Repository',
                             click: function () {
-                                require('shell').openExternal('https://github.com/shockone/black-screen')
+                                require('shell').openExternal('https://github.com/mlwmlw/esp-editor')
                             }
                         }
                     ]
                 }
             ];
 
-            menu = Menu.buildFromTemplate(template);
-            Menu.setApplicationMenu(menu);
+            
         } else {
             template = [
                 {

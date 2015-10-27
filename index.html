@@ -29,11 +29,18 @@
 	<script src="assets/main.js"></script>
 
 	<style>
+		body {
+			background: #002b36;
+		}
 		.container {
 			width:100%;
 		}
 		.CodeMirror {
 			height: auto;
+		}
+		.editor {
+			margin-top: -10px;
+    		margin-left: -15px;
 		}
 		.console pre {
 			background: #002b36;
@@ -93,10 +100,12 @@
 		</treecontrol>
 	</div>
 	<div class="col-xs-9">
+		<!--
 		Baud Rate: <select class="form-control" ng-model="baudrate" ng-options="rate for rate in baudrates"></select>
 		<br />
 		Ports: <select class="form-control" ng-change="selectPort(port.comName)" ng-model="port" ng-options="port.comName + ' - ' + port.manufacturer for port in ports"></select>
-		<div  ui-codemirror="editor.option" ng-model="editor.content"></div>
+		-->
+		<div class="editor" ui-codemirror="editor.option" ng-model="editor.content"></div>
 
 		<div class="row" ng-repeat="clip in clips track by $index">
 			<div class="col-md-1">

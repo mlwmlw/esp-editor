@@ -22,7 +22,9 @@ app.on('ready', function() {
   
   // and load the index.html of the app.
   mainWindow.loadUrl('file://' + __dirname + '/index.html');
-  menu.setMenu(app, mainWindow);
+  
+  menu.setMenu(app, mainWindow);  
+
   // Open the DevTools.
   mainWindow.openDevTools();
 

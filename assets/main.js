@@ -175,6 +175,7 @@ angular.module('xapp', ['ngSanitize', 'hljs', 'ui.codemirror', 'treeControl']).c
 					reader = function(data) {
 						lastRead = new Date;
 						str += data;
+						//_r(data);
 						
 						if(!/^>+ /.test(str.split("\n").pop())) {
 							return;
@@ -186,8 +187,10 @@ angular.module('xapp', ['ngSanitize', 'hljs', 'ui.codemirror', 'treeControl']).c
 					res += str;
 					if(cmds.length > 0)
 						return executor();
+
 					var arr = res.toString().split("\n");
 					var r = arr.slice(cmd.split("\n").length).slice(0, -1).join("\n")
+					reader = _r;
 					cb(r);
 				});
 			}, 500);
